@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using PersonCrudApp.Models;
 
 namespace PersonCrudApp;
@@ -14,6 +15,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         UpdatePeople();
+
+        SelectedPersonData.DataContext = PeopleList.SelectedItem;
     }
 
     private void UpdatePeople(int newIndex = 0)
@@ -24,9 +27,12 @@ public partial class MainWindow : Window
         if (People.Count > 0)
         {
             PeopleList.SelectedIndex = newIndex;
+            UpdateSelectedPersonText((Person)PeopleList.SelectedItem);
         }
-
-        SelectedPersonData.DataContext = PeopleList.SelectedItem;
+        else
+        {
+            UpdateSelectedPersonText(null);
+        }
     }
 
     private void New_Click(object sender, RoutedEventArgs e)
@@ -55,6 +61,8 @@ public partial class MainWindow : Window
         {
             UpdatePeople(PeopleList.SelectedIndex);
         }
+
+        SelectedPersonData.DataContext = PeopleList.SelectedItem;
     }
 
     private void Delete_Click(object sender, RoutedEventArgs e)
@@ -77,7 +85,7 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (result.HasFlag(MessageBoxResult.Yes))
+        if (result == MessageBoxResult.Yes)
         {
             App.dbContext.People.Remove(selectedPerson);
             App.dbContext.SaveChanges();
@@ -88,5 +96,16 @@ public partial class MainWindow : Window
     private void PeopleList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         SelectedPersonData.DataContext = PeopleList.SelectedItem;
+        UpdateSelectedPersonText((Person) PeopleList.SelectedItem);
+    }
+
+    private void UpdateSelectedPersonText(Person? person)
+    {
+        bool exists = person != null;
+
+        FirstName.Text = exists ? person!.FirstName : "";
+        LastName.Text = exists ? person!.LastName: "";
+        Address.Text = exists ? person!.Address: "";
+        TexNumber.Text = exists ? person!.TaxNumber: "";
     }
 }
